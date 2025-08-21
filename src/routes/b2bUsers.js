@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { createB2BUser } = require('../controllers/b2bUserController');
 
-router.post('/', createB2BUser);
+// Define B2B routes here:
+router.get('/b2b-home', (req, res) => {
+  res.json({ message: 'Welcome B2B user!' });
+});
 
 module.exports = router;

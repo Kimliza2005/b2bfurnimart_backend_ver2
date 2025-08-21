@@ -52,8 +52,9 @@ const OrderRoutes = require('./routes/order');
 const paymentRoutes = require('./routes/payment-intents');
 const delete_fileRoutes = require('./routes/file-delete');
 const adminRoutes = require('./routes/admin'); 
-const b2bUsersRoutes = require('./routes/b2bUsers');
 const testRoutes = require("./routes/test");
+const b2bUsersRoutes = require('./routes/b2bUsers');
+
 
 
 app.use('/api', homeRoutes);
@@ -72,8 +73,6 @@ app.use('/api', wishlistRoutes);
 app.use('/api', OrderRoutes);
 app.use('/api', paymentRoutes);
 app.use('/api', delete_fileRoutes);
-app.use('/api/b2b-users', b2bUsersRoutes);
-app.use("/api", testRoutes);
 
 
 app.use('/api/admin', adminRoutes);
