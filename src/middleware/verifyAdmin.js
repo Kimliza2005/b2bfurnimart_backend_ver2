@@ -1,4 +1,4 @@
-const verifyToken = require('../config/jwt'); // adjust path if needed
+const verifyToken = require('../config/jwt');
 
 const verifyAdmin = (req, res, next) => {
   verifyToken(req, res, () => {
