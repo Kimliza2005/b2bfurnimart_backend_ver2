@@ -110,7 +110,7 @@ const verifyToken = require('../config/jwt');       // function
 //   'updateProductByAdmin',
 //   'deletedProductByAdmin',
 // ].forEach(k => console.log(`typeof product.${k}:`, typeof product[k]));
-
+// console.log(product);
 // Admin routes
 router.post('/admin/products', verifyToken, product.createProductByAdmin);
 router.get('/admin/products', verifyToken, product.getProductsByAdmin);

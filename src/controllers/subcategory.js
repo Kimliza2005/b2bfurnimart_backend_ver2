@@ -147,6 +147,7 @@ const deleteSubCategoriesBySlug = async (req, res) => {
 		res.status(400).json({ message: error.message });
 	}
 };
+
 const getSubCategories = async (req, res) => {
 	try {
 		const subcategories = await SubCategories.find().sort({
