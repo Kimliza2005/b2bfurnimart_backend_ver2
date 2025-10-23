@@ -21,6 +21,12 @@ const CategorySchema = new mongoose.Schema(
       required: [true, "Name is required."],
       maxlength: [100, "Name cannot exceed 100 characters."],
     },
+    // Optional per-locale names. Keep `name` as primary/fallback (typically English)
+    nameI18n: {
+      en: { type: String, maxlength: [100, "Name cannot exceed 100 characters."] },
+      km: { type: String, maxlength: [100, "Name cannot exceed 100 characters."] },
+      zh: { type: String, maxlength: [100, "Name cannot exceed 100 characters."] },
+    },
     metaTitle: {
       type: String,
       required: [true, "Meta title is required."],

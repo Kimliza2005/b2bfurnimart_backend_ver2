@@ -6,6 +6,7 @@ const getCategories = async (req, res) => {
   try {
     const categories = await Category.find().select([
       'name',
+      'nameI18n',
       'cover',
       'slug',
       'status',

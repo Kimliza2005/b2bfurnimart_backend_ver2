@@ -63,8 +63,8 @@ const getAllSubCategories = async (req, res) => {
 const getSubCategoriesBySlug = async (req, res) => {
 	try {
 		const { slug } = req.params;
-		const subcategories = await SubCategories.findOne({ slug });
-		const categories = await Category.find().select(["name"]);
+    const subcategories = await SubCategories.findOne({ slug });
+    const categories = await Category.find().select(["name", "nameI18n"]);
 
 		if (!subcategories) {
 			return res.status(400).json({
@@ -165,9 +165,9 @@ const getSubCategories = async (req, res) => {
 
 const getSubCategoryNameBySlug = async (req, res) => {
 	try {
-		const subcategory = await SubCategories.findOne({ slug: req.params.slug })
-			.select(["name", "slug"])
-			.populate({ path: "parentCategory", select: ["name", "slug"] });
+    const subcategory = await SubCategories.findOne({ slug: req.params.slug })
+      .select(["name", "nameI18n", "slug"])
+      .populate({ path: "parentCategory", select: ["name", "nameI18n", "slug"] });
 
 		res.status(201).json({
 			success: true,

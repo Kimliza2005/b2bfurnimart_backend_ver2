@@ -42,8 +42,8 @@ const getAllCategories = async (req, res) => {
     await SubCategories.findOne();
     const categories = await Categories.find()
       .sort({ orderIndex: 1, createdAt: -1 })
-      .select(["name", "slug", "orderIndex", "cover", "subCategories"])
-      .populate({ path: "subCategories", select: ["name", "slug"] });
+      .select(["name", "nameI18n", "slug", "orderIndex", "cover", "subCategories"])
+      .populate({ path: "subCategories", select: ["name", "nameI18n", "slug"] });
 
     res.status(201).json({
       success: true,
@@ -82,6 +82,7 @@ const getCategoryBySlug = async (req, res) => {
     const { slug } = req.params;
     const category = await Categories.findOne({ slug }).select([
       "name",
+      "nameI18n",
       "description",
       "metaTitle",
       "metaDescription",
@@ -223,7 +224,7 @@ const getCategoryNameBySlug = async (req, res) => {
   try {
     const category = await Categories.findOne({
       slug: req.params.slug,
-    }).select(["name", "slug"]);
+    }).select(["name", "nameI18n", "slug"]);
 
     res.status(201).json({
       success: true,
