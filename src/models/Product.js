@@ -140,13 +140,34 @@ const variantSchema = new mongoose.Schema({
 const productSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
+    // Multilingual fields similar to Category/SubCategory
+    nameI18n: {
+      en: { type: String, default: "" },
+      km: { type: String, default: "" },
+      zh: { type: String, default: "" },
+    },
     code: { type: String, default: "" },
     status: { type: String, default: "active" },
     isFeatured: { type: Boolean, default: false },
     likes: { type: Number, default: 0 },
     description: { type: String, default: "" },
+    descriptionI18n: {
+      en: { type: String, default: "" },
+      km: { type: String, default: "" },
+      zh: { type: String, default: "" },
+    },
     metaTitle: { type: String, default: "" },
+    metaTitleI18n: {
+      en: { type: String, default: "" },
+      km: { type: String, default: "" },
+      zh: { type: String, default: "" },
+    },
     metaDescription: { type: String, default: "" },
+    metaDescriptionI18n: {
+      en: { type: String, default: "" },
+      km: { type: String, default: "" },
+      zh: { type: String, default: "" },
+    },
     slug: { type: String, unique: true },
 
     createdBy: {

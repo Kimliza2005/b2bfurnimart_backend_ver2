@@ -770,6 +770,7 @@ const getProducts = async (req, res) => {
     $project: {
       image: { url: "$image.url", blurDataURL: "$image.blurDataURL" },
       name: 1,
+      nameI18n: 1,
       code: 1,
       slug: 1,
       variants: 1,
@@ -841,6 +842,7 @@ const getProductsByAdmin = async (req, res) => {
         $project: {
           image: { url: "$image.url", blurDataURL: "$image.blurDataURL" },
           name: 1,
+          nameI18n: 1,
           code: 1,
           slug: 1,
           variants: 1,
@@ -872,6 +874,13 @@ const createProductByAdmin = async (req, res) => {
   try {
     await getAdmin(req, res);
     const { images, variants, ...body } = req.body;
+    // Ensure legacy fields exist from i18n inputs
+    if (!body.name && body?.nameI18n?.en) body.name = body.nameI18n.en;
+    if (!body.description && body?.descriptionI18n?.en)
+      body.description = body.descriptionI18n.en;
+    if (!body.metaTitle && body?.metaTitleI18n?.en) body.metaTitle = body.metaTitleI18n.en;
+    if (!body.metaDescription && body?.metaDescriptionI18n?.en)
+      body.metaDescription = body.metaDescriptionI18n.en;
 
     if (!Array.isArray(images)) {
       return res
@@ -1015,9 +1024,52 @@ const updateProductByAdmin = async (req, res) => {
       }))
     );
 
+    // Ensure legacy fields exist from i18n inputs
+    if (!body.name && body?.nameI18n?.en) body.name = body.nameI18n.en;
+    if (!body.description && body?.descriptionI18n?.en)
+      body.description = body.descriptionI18n.en;
+    if (!body.metaTitle && body?.metaTitleI18n?.en) body.metaTitle = body.metaTitleI18n.en;
+    if (!body.metaDescription && body?.metaDescriptionI18n?.en)
+      body.metaDescription = body.metaDescriptionI18n.en;
+
+    // Build $set update for robust nested field updates
+    const setOps = {
+      images: updatedImages,
+      variants: updatedVariants,
+      ...body,
+    };
+    if (body.nameI18n) {
+      ['en', 'km', 'zh'].forEach((k) =>
+        Object.prototype.hasOwnProperty.call(body.nameI18n, k) &&
+        (setOps[`nameI18n.${k}`] = body.nameI18n[k])
+      );
+      delete setOps.nameI18n;
+    }
+    if (body.descriptionI18n) {
+      ['en', 'km', 'zh'].forEach((k) =>
+        Object.prototype.hasOwnProperty.call(body.descriptionI18n, k) &&
+        (setOps[`descriptionI18n.${k}`] = body.descriptionI18n[k])
+      );
+      delete setOps.descriptionI18n;
+    }
+    if (body.metaTitleI18n) {
+      ['en', 'km', 'zh'].forEach((k) =>
+        Object.prototype.hasOwnProperty.call(body.metaTitleI18n, k) &&
+        (setOps[`metaTitleI18n.${k}`] = body.metaTitleI18n[k])
+      );
+      delete setOps.metaTitleI18n;
+    }
+    if (body.metaDescriptionI18n) {
+      ['en', 'km', 'zh'].forEach((k) =>
+        Object.prototype.hasOwnProperty.call(body.metaDescriptionI18n, k) &&
+        (setOps[`metaDescriptionI18n.${k}`] = body.metaDescriptionI18n[k])
+      );
+      delete setOps.metaDescriptionI18n;
+    }
+
     const updated = await Product.findOneAndUpdate(
       { slug },
-      { ...body, images: updatedImages, variants: updatedVariants },
+      { $set: setOps },
       { new: true, runValidators: true }
     );
 
