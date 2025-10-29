@@ -36,6 +36,7 @@ const getTopRatedProducts = async (req, res) => {
         $addFields: {
           averageRating: { $avg: '$reviews.rating' },
           image: { $arrayElemAt: ['$images', 0] },
+          firstVariant: { $arrayElemAt: ['$variants', 0] },
         },
       },
 
@@ -56,10 +57,12 @@ const getTopRatedProducts = async (req, res) => {
           available: 1,
           discount: 1,
           likes: 1,
-          priceSale: 1,
-          price: 1,
+          priceSale: '$firstVariant.priceSale',
+          price: '$firstVariant.price',
+          wholesalePrice: '$firstVariant.wholesalePrice',
+          tierPrices: '$firstVariant.tierPrices',
           averageRating: 1,
-
+          
           createdAt: 1,
         },
       },
@@ -89,6 +92,7 @@ const getBestSellerProducts = async (req, res) => {
         $addFields: {
           averageRating: { $avg: '$reviews.rating' },
           image: { $arrayElemAt: ['$images', 0] },
+          firstVariant: { $arrayElemAt: ['$variants', 0] },
         },
       },
       {
@@ -108,8 +112,10 @@ const getBestSellerProducts = async (req, res) => {
           available: 1,
           discount: 1,
           likes: 1,
-          priceSale: 1,
-          price: 1,
+          priceSale: '$firstVariant.priceSale',
+          price: '$firstVariant.price',
+          wholesalePrice: '$firstVariant.wholesalePrice',
+          tierPrices: '$firstVariant.tierPrices',
           averageRating: 1,
           createdAt: 1,
         },
@@ -135,6 +141,7 @@ const getFeaturedProducts = async (req, res) => {
         $addFields: {
           averageRating: { $avg: '$reviews.rating' },
           image: { $arrayElemAt: ['$images', 0] },
+          firstVariant: { $arrayElemAt: ['$variants', 0] },
         },
       },
       {
@@ -154,10 +161,12 @@ const getFeaturedProducts = async (req, res) => {
           available: 1,
           discount: 1,
           likes: 1,
-          priceSale: 1,
-          price: 1,
+          priceSale: '$firstVariant.priceSale',
+          price: '$firstVariant.price',
+          wholesalePrice: '$firstVariant.wholesalePrice',
+          tierPrices: '$firstVariant.tierPrices',
           averageRating: 1,
-
+          
           createdAt: 1,
         },
       },
