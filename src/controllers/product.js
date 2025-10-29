@@ -1206,6 +1206,11 @@ const relatedProducts = async (req, res) => {
   try {
     const pid = req.params.pid;
     const product = await Product.findById(pid).select("_id category");
+    if (!product) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product Not Found" });
+    }
 
     const related = await Product.aggregate([
       {
