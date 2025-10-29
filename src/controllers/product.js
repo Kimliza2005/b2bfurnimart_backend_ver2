@@ -949,10 +949,27 @@ const getOneProductByAdmin = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Product Not Found" });
 
-    const category = await Category.findById(product.category).select([
-      "name",
-      "slug",
-    ]);
+    // Resolve category whether stored as ObjectId or legacy slug string
+    let category;
+    try {
+      if (
+        product.category &&
+        typeof product.category === "string" &&
+        !require("mongoose").Types.ObjectId.isValid(product.category)
+      ) {
+        category = await Category.findOne({ slug: product.category }).select([
+          "name",
+          "slug",
+        ]);
+      } else {
+        category = await Category.findById(product.category).select([
+          "name",
+          "slug",
+        ]);
+      }
+    } catch (_) {
+      category = null;
+    }
 
     const reviewReport = await Product.aggregate([
       { $match: { slug: req.params.slug } },
@@ -1244,10 +1261,27 @@ const getOneProductBySlug = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Product Not Found" });
 
-    const category = await Category.findById(product.category).select([
-      "name",
-      "slug",
-    ]);
+    // Resolve category whether stored as ObjectId or legacy slug string
+    let category;
+    try {
+      if (
+        product.category &&
+        typeof product.category === "string" &&
+        !require("mongoose").Types.ObjectId.isValid(product.category)
+      ) {
+        category = await Category.findOne({ slug: product.category }).select([
+          "name",
+          "slug",
+        ]);
+      } else {
+        category = await Category.findById(product.category).select([
+          "name",
+          "slug",
+        ]);
+      }
+    } catch (_) {
+      category = null;
+    }
 
     const reviewReport = await Product.aggregate([
       { $match: { slug: req.params.slug } },
