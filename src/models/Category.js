@@ -68,6 +68,11 @@ const CategorySchema = new mongoose.Schema(
   }
 );
 
+// Helpful indexes for read performance (define before model compilation)
+CategorySchema.index({ slug: 1 }, { unique: true });
+CategorySchema.index({ orderIndex: 1 });
+CategorySchema.index({ createdAt: -1 });
+
 const Category =
   mongoose.models.Category || mongoose.model("Category", CategorySchema);
 module.exports = Category;

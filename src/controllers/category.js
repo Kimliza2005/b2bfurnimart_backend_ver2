@@ -38,14 +38,18 @@ const createCategory = async (req, res) => {
 
 const getAllCategories = async (req, res) => {
   try {
-    const userCount = await User.countDocuments();
-    await SubCategories.findOne();
+    // Optional adminPopup check; remove from hot path if not needed
+    let userCount = 1;
+    try { userCount = await User.countDocuments(); } catch (_) {}
+
     const categories = await Categories.find()
       .sort({ orderIndex: 1, createdAt: -1 })
       .select(["name", "nameI18n", "slug", "orderIndex", "cover", "subCategories"])
-      .populate({ path: "subCategories", select: ["name", "nameI18n", "slug"] });
+      .populate({ path: "subCategories", select: ["name", "nameI18n", "slug"] })
+      .lean();
 
-    res.status(201).json({
+    res.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400');
+    res.status(200).json({
       success: true,
       data: categories,
       ...(!userCount && {
@@ -88,7 +92,7 @@ const getCategoryBySlug = async (req, res) => {
       "metaDescription",
       "cover",
       "slug",
-    ]);
+    ]).lean();
 
     if (!category) {
       return res.status(400).json({
@@ -97,7 +101,8 @@ const getCategoryBySlug = async (req, res) => {
       });
     }
 
-    res.status(201).json({ success: true, data: category });
+    res.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400');
+    res.status(200).json({ success: true, data: category });
   } catch (error) {
     res.status(400).json({
       success: false,
@@ -183,9 +188,9 @@ const getCategories = async (req, res) => {
         skip: skip * (parseInt(page) - 1 || 0),
         limit: skip,
       }
-    ).sort({ orderIndex: 1, createdAt: -1 });
+    ).sort({ orderIndex: 1, createdAt: -1 }).lean();
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       data: categories,
       count: Math.ceil(totalCategories.length / skip),
@@ -196,9 +201,9 @@ const getCategories = async (req, res) => {
 };
 const getCategoriesSlugs = async (req, res) => {
   try {
-    const categories = await Categories.find().select("slug");
+    const categories = await Categories.find().select("slug").lean();
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       data: categories,
     });
@@ -210,9 +215,10 @@ const getSubCategoriesSlugs = async (req, res) => {
   try {
     const categories = await SubCategories.find()
       .select("slug")
-      .populate({ path: "parentCategory", select: ["slug"] });
+      .populate({ path: "parentCategory", select: ["slug"] })
+      .lean();
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       data: categories,
     });
@@ -224,9 +230,9 @@ const getCategoryNameBySlug = async (req, res) => {
   try {
     const category = await Categories.findOne({
       slug: req.params.slug,
-    }).select(["name", "nameI18n", "slug"]);
+    }).select(["name", "nameI18n", "slug"]).lean();
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       data: category,
     });

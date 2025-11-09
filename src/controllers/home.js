@@ -10,8 +10,9 @@ const getCategories = async (req, res) => {
       'cover',
       'slug',
       'status',
-    ]);
-    res.status(201).json({ success: true, data: categories });
+    ]).lean();
+    res.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400');
+    res.status(200).json({ success: true, data: categories });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -67,7 +68,8 @@ const getTopRatedProducts = async (req, res) => {
         },
       },
     ]);
-    res.status(201).json({ success: true, data: bestSellingProduct });
+    res.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400');
+    res.status(200).json({ success: true, data: bestSellingProduct });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -121,6 +123,7 @@ const getBestSellerProducts = async (req, res) => {
         },
       },
     ]);
+    res.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400');
     return res.status(200).json({ success: true, data: bestSellingProduct });
   } catch (error) {
     return res.status(400).json({ success: false, message: error.message });
@@ -171,6 +174,7 @@ const getFeaturedProducts = async (req, res) => {
         },
       },
     ]);
+    res.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400');
     return res.status(200).json({ success: true, data: bestSellingProduct });
   } catch (error) {
     return res.status(400).json({ success: false, message: error.message });
