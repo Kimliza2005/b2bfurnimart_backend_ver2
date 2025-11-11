@@ -762,8 +762,33 @@ const getProducts = async (req, res) => {
     $addFields: {
       averageRating: { $avg: "$reviews.rating" },
       image: { $arrayElemAt: ["$images", 0] },
-      firstVariant: { $arrayElemAt: ["$variants", 0] },
+      // derive prices from variants with sensible fallbacks (ignore 0 values)
+      _variantPrices: {
+        $filter: {
+          input: { $map: { input: "$variants", as: "v", in: { $ifNull: ["$$v.price", 0] } } },
+          as: "p",
+          cond: { $gt: ["$$p", 0] }
+        }
+      },
+      _variantSalePrices: {
+        $filter: {
+          input: { $map: { input: "$variants", as: "v", in: { $ifNull: ["$$v.priceSale", 0] } } },
+          as: "p",
+          cond: { $gt: ["$$p", 0] }
+        }
+      }
     },
+  },
+  {
+    $addFields: {
+      _minPrice: {
+        $cond: [{ $gt: [{ $size: "$_variantPrices" }, 0] }, { $min: "$_variantPrices" }, 0]
+      },
+      _minPriceSale: {
+        $cond: [{ $gt: [{ $size: "$_variantSalePrices" }, 0] }, { $min: "$_variantSalePrices" }, 0]
+      },
+      firstVariant: { $arrayElemAt: ["$variants", 0] }
+    }
   },
   { $match: matchConditions },
   {
@@ -776,8 +801,14 @@ const getProducts = async (req, res) => {
       variants: 1,
       averageRating: 1,
       likes: 1,
-      price: "$firstVariant.price",
-      priceSale: "$firstVariant.priceSale",
+      price: { $cond: [{ $gt: ["$_minPrice", 0] }, "$_minPrice", { $ifNull: ["$firstVariant.price", 0] }] },
+      priceSale: {
+        $cond: [
+          { $gt: ["$_minPriceSale", 0] },
+          "$_minPriceSale",
+          { $cond: [{ $gt: ["$_minPrice", 0] }, "$_minPrice", { $ifNull: ["$firstVariant.priceSale", 0] }] }
+        ]
+      },
       wholesalePrice: "$firstVariant.wholesalePrice",
       tierPrices: "$firstVariant.tierPrices",
       createdAt: 1,

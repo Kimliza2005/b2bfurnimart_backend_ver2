@@ -7,7 +7,7 @@ const getWishlist = async (req, res) => {
     const user = await getUser(req, res);
     //  Fetch wishlist and related products
     const wishlist = user.wishlist;
-    const products = await Products.aggregate([
+  const products = await Products.aggregate([
       {
         $match: {
           _id: { $in: wishlist }, // Match products with IDs present in the Pids array
@@ -25,7 +25,28 @@ const getWishlist = async (req, res) => {
         $addFields: {
           averageRating: { $avg: '$reviews.rating' },
           image: { $arrayElemAt: ['$images', 0] },
+          _variantPrices: {
+            $filter: {
+              input: { $map: { input: '$variants', as: 'v', in: { $ifNull: ['$$v.price', 0] } } },
+              as: 'p',
+              cond: { $gt: ['$$p', 0] }
+            }
+          },
+          _variantSalePrices: {
+            $filter: {
+              input: { $map: { input: '$variants', as: 'v', in: { $ifNull: ['$$v.priceSale', 0] } } },
+              as: 'p',
+              cond: { $gt: ['$$p', 0] }
+            }
+          },
+          firstVariant: { $arrayElemAt: ['$variants', 0] }
         },
+      },
+      {
+        $addFields: {
+          _minPrice: { $cond: [{ $gt: [{ $size: '$_variantPrices' }, 0] }, { $min: '$_variantPrices' }, 0] },
+          _minPriceSale: { $cond: [{ $gt: [{ $size: '$_variantSalePrices' }, 0] }, { $min: '$_variantSalePrices' }, 0] }
+        }
       },
       {
         $project: {
@@ -35,8 +56,16 @@ const getWishlist = async (req, res) => {
           colors: 1,
           discount: 1,
           likes: 1,
-          priceSale: 1,
-          price: 1,
+          price: { $cond: [{ $gt: ['$_minPrice', 0] }, '$_minPrice', { $ifNull: ['$firstVariant.price', 0] }] },
+          priceSale: {
+            $cond: [
+              { $gt: ['$_minPriceSale', 0] },
+              '$_minPriceSale',
+              { $cond: [{ $gt: ['$_minPrice', 0] }, '$_minPrice', { $ifNull: ['$firstVariant.priceSale', 0] }] }
+            ]
+          },
+          // expose first variant tier prices at root for card component logic
+          tierPrices: '$firstVariant.tierPrices',
           averageRating: 1,
           available: 1,
           createdAt: 1,
