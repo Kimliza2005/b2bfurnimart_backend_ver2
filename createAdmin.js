@@ -7,11 +7,11 @@ async function createSuperAdmin() {
     await mongoose.connect(process.env.MONGODB_URI);
 
     const userData = {
-      firstName: 'Admin',
-      lastName: '1',
+      firstName: 'Ny',
+      lastName: 'Admin',
       password: 'StrongPassword123!', // Ensure this meets your password policy
       gender: 'female',           
-      phone: '0719778888',
+      phone: '014788188',
       otp: '0000',                
       role: 'admin',     
       isVerified: true,
