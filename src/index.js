@@ -28,6 +28,18 @@ mongoose
   })
   .then(() => {
     console.log('Connected to MongoDB');
+    // Ensure "orderIndex" on categories is not unique. Drop legacy unique index if present.
+    try {
+      const col = mongoose.connection.collection('categories');
+      col.indexes().then((idx) => {
+        const legacy = idx.find((i) => i.key && i.key.orderIndex === 1 && i.unique);
+        if (legacy && legacy.name) {
+          col.dropIndex(legacy.name)
+            .then(() => console.log('Dropped legacy unique index on categories.orderIndex'))
+            .catch(() => {});
+        }
+      }).catch(() => {});
+    } catch (_) {}
   })
   .catch((error) => {
     console.error('Error connecting to MongoDB:', error);

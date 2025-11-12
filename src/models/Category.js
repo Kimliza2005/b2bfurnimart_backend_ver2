@@ -53,8 +53,6 @@ const CategorySchema = new mongoose.Schema(
     },
     orderIndex: {
       type: Number,
-      unique: true,
-      
     },
     subCategories: [
       {

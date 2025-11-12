@@ -8,16 +8,7 @@ const createCategory = async (req, res) => {
   try {
     const { cover, ...others } = req.body;
 
-    // Check duplicate orderIndex
-    if (others.orderIndex !== undefined) {
-      const exists = await Categories.findOne({ orderIndex: others.orderIndex });
-      if (exists) {
-        return res.status(400).json({
-          success: false,
-          message: `Display Index ${others.orderIndex} is already taken`,
-        });
-      }
-    }
+    // Allow duplicate orderIndex (display index)
 
     const blurDataURL = await getBlurDataURL(cover.url);
 
@@ -115,19 +106,7 @@ const updateCategoryBySlug = async (req, res) => {
     const { slug } = req.params;
     const { cover, ...others } = req.body;
 
-    // Check duplicate orderIndex
-    if (others.orderIndex !== undefined) {
-      const exists = await Categories.findOne({
-        orderIndex: others.orderIndex,
-        slug: { $ne: slug }, // exclude the current category
-      });
-      if (exists) {
-        return res.status(400).json({
-          success: false,
-          message: `Display Index ${others.orderIndex} is already taken`,
-        });
-      }
-    }
+    // Allow duplicate orderIndex (display index)
 
     if (!cover.blurDataURL) {
       cover.blurDataURL = await getBlurDataURL(cover.url);
