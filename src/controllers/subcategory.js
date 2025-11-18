@@ -83,6 +83,13 @@ const updateSubCategoriesBySlug = async (req, res) => {
 	try {
 		const { slug } = req.params;
 		const { cover, ...others } = req.body;
+		const existingSubCategory = await SubCategories.findOne({ slug });
+
+		if (!existingSubCategory) {
+			return res.status(404).json({ message: "SubCategory Not Found" });
+		}
+
+		const previousParentCategory = existingSubCategory.parentCategory;
 		// Validate if the 'blurDataURL' property exists in the logo object
 		if (!cover.blurDataURL) {
 			// If blurDataURL is not provided, generate it using the 'getBlurDataURL' function
@@ -100,10 +107,10 @@ const updateSubCategoriesBySlug = async (req, res) => {
 		);
 		// Check if parent category is updated
 		if (
-			String(currentCategory.parentCategory) !== String(others.parentCategory)
+			String(previousParentCategory) !== String(others.parentCategory)
 		) {
 			// Remove subcategory from old parent category
-			await Category.findByIdAndUpdate(currentCategory.parentCategory, {
+			await Category.findByIdAndUpdate(previousParentCategory, {
 				$pull: { subCategories: currentCategory._id },
 			});
 
