@@ -39,7 +39,9 @@ const getAllCategories = async (req, res) => {
       .populate({ path: "subCategories", select: ["name", "nameI18n", "slug"] })
       .lean();
 
-    res.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400');
+    // Categories/subcategories change frequently via admin actions, so disable shared caching
+    // to ensure the storefront always reflects the latest structure immediately.
+    res.set('Cache-Control', 'no-store, max-age=0');
     res.status(200).json({
       success: true,
       data: categories,
