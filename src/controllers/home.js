@@ -11,7 +11,9 @@ const getCategories = async (req, res) => {
       'slug',
       'status',
     ]).lean();
-    res.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400');
+    // Product collections should reflect admin edits immediately;
+    // disable shared caching to avoid stale cards pointing to deleted slugs.
+    res.set('Cache-Control', 'no-store, max-age=0');
     res.status(200).json({ success: true, data: categories });
   } catch (error) {
     res.status(500).json({
@@ -68,7 +70,7 @@ const getTopRatedProducts = async (req, res) => {
         },
       },
     ]);
-    res.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400');
+    res.set('Cache-Control', 'no-store, max-age=0');
     res.status(200).json({ success: true, data: bestSellingProduct });
   } catch (error) {
     res.status(500).json({
@@ -123,7 +125,7 @@ const getBestSellerProducts = async (req, res) => {
         },
       },
     ]);
-    res.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400');
+    res.set('Cache-Control', 'no-store, max-age=0');
     return res.status(200).json({ success: true, data: bestSellingProduct });
   } catch (error) {
     return res.status(400).json({ success: false, message: error.message });
